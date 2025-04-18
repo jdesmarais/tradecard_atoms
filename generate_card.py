@@ -1,72 +1,6 @@
-import argparse
+from utils import write_text_in_box, draw_grid
+
 from PIL import Image, ImageDraw, ImageFont
-
-def wrap_text_to_box(draw, text, font, box_width):
-    words = text.split()
-    lines = []
-    current_line = ""
-
-    for word in words:
-        test_line = current_line + (" " if current_line else "") + word
-        bbox = draw.textbbox((0, 0), test_line, font=font)
-        width = bbox[2] - bbox[0]
-        if width <= box_width:
-            current_line = test_line
-        else:
-            lines.append(current_line)
-            current_line = word
-    if current_line:
-        lines.append(current_line)
-    return lines
-
-def write_text_in_box(draw, text, box_size, box_top_left, font, color):
-    box_width, box_height = box_size
-
-    lines = wrap_text_to_box(draw, text, font, box_width)
-
-    # Draw lines within the box (check height if needed)
-    bbox = draw.textbbox((0, 0), "Ag", font=font)
-    line_height = (bbox[3] - bbox[1]) + 5  # height + line spacing
-    y_offset = box_top_left[1]
-
-    for line in lines:
-        if y_offset + line_height > box_top_left[1] + box_height:
-            break  # Stop if we exceed the box height
-        draw.text((box_top_left[0], y_offset), line, font=font, fill=color)
-        y_offset += line_height
-
-
-def draw_grid(draw, img_size):
-    i_max = int(img_size[0] / 100.) + 1
-    j_max = int(img_size[1] / 100.) + 1
-
-    # draw vertical lines
-    for i in range(0,i_max):
-        x_line = i*100
-        draw.line([(x_line,0), (x_line,img_size[1])], fill=(255,0,0), width=2)
-
-        for j in range(1,10):
-            x_line = i*100 + j*10
-            draw.line([(x_line,0), (x_line,img_size[1])], fill=(0,255,0), width=2)
-
-        j=5
-        x_line = i*100 + j*10
-        draw.line([(x_line,0), (x_line,img_size[1])], fill=(255,255,255), width=2)
-        
-    # draw horizontal lines
-    for i in range(0,j_max):
-        y_line = i*100
-        draw.line([(0,y_line), (img_size[0],y_line)], fill=(255,0,0), width=2)
-
-        for j in range(1,10):
-            y_line = i*100 + j*10
-            draw.line([(0,y_line), (img_size[0], y_line)], fill=(0,255,0), width=2)
-    
-        j=5
-        y_line = i*100 + j*10
-        draw.line([(0,y_line), (img_size[0], y_line)], fill=(255,255,255), width=2)
-
-
 
 def generate_tradecard_image(
     background_img_path,
@@ -75,10 +9,7 @@ def generate_tradecard_image(
     atom_subgroup_title,
     picto_img_path,
     atom_kpis,
-    atom_description,
-    output_path = None,
-    show_grid = False,
-    show_result = False):
+    atom_description):
 
     background_path = background_img_path
 
@@ -174,8 +105,6 @@ def generate_tradecard_image(
 
     # Draw atomic description
     description_font = ImageFont.truetype(description_font_path, description_font_size)
-
-    # Wrap the text into lines
     write_text_in_box(draw,
                       description,
                       description_box_size,
@@ -183,15 +112,7 @@ def generate_tradecard_image(
                       description_font,
                       description_color)
 
-
-    # Show the image if requested
-    if show_result:
-        img.show()
-
-    # Save the final image
-    if output_path:
-        img.save(output_path)
-        print(f"Image saved to {output_path}")
+    return img
 
 if __name__ == "__main__":
     background_img_path = "/Users/julien/Documents/Projects/tradecards_atom/assets/background.png"
@@ -202,17 +123,26 @@ if __name__ == "__main__":
     atom_kpis = ["1", "1.01 g/mol", "-259°C", "-252°C", "1766"]
     atom_description = "L'hydrogène est le principal constituant du Soleil et de la plupart des étoiles (dont l'énergie provient de la fusion thermonucléaire de cet hydrogène), et de la matière interstellaire ou intergalactique. Sur Terre, il est surtout présent à l'état d'eau liquide, solide (glace) ou gazeuse (vapeur d'eau), mais on le trouve aussi dans les émanations de certains volcans sous la forme de H2 et de CH4 (méthane)."
 
+    output_path="/Users/julien/Documents/Projects/tradecards_atom/outputs/hydrogene.png"
+
     show_grid = False
     show_result = False
 
-    generate_tradecard_image(
+    img = generate_tradecard_image(
         background_img_path,
         atom_img_path,
         atom_title,
         atom_subgroup_title,
         picto_img_path,
         atom_kpis,
-        atom_description,
-        output_path="/Users/julien/Documents/Projects/tradecards_atom/outputs/hydrogene.png",
-        show_grid = show_grid,
-        show_result = show_result)
+        atom_description)
+    
+    # Show the image if requested
+    if show_result:
+        img.show()
+
+    # Save the final image
+    if output_path:
+        img.save(output_path)
+        print(f"Image saved to {output_path}")
+
