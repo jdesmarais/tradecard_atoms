@@ -19,6 +19,55 @@ def wrap_text_to_box(draw, text, font, box_width):
         lines.append(current_line)
     return lines
 
+def write_text_in_box(draw, text, box_size, box_top_left, font, color):
+    box_width, box_height = box_size
+
+    lines = wrap_text_to_box(draw, text, font, box_width)
+
+    # Draw lines within the box (check height if needed)
+    bbox = draw.textbbox((0, 0), "Ag", font=font)
+    line_height = (bbox[3] - bbox[1]) + 5  # height + line spacing
+    y_offset = box_top_left[1]
+
+    for line in lines:
+        if y_offset + line_height > box_top_left[1] + box_height:
+            break  # Stop if we exceed the box height
+        draw.text((box_top_left[0], y_offset), line, font=font, fill=color)
+        y_offset += line_height
+
+
+def draw_grid(draw, img_size):
+    i_max = int(img_size[0] / 100.) + 1
+    j_max = int(img_size[1] / 100.) + 1
+
+    # draw vertical lines
+    for i in range(0,i_max):
+        x_line = i*100
+        draw.line([(x_line,0), (x_line,img_size[1])], fill=(255,0,0), width=2)
+
+        for j in range(1,10):
+            x_line = i*100 + j*10
+            draw.line([(x_line,0), (x_line,img_size[1])], fill=(0,255,0), width=2)
+
+        j=5
+        x_line = i*100 + j*10
+        draw.line([(x_line,0), (x_line,img_size[1])], fill=(255,255,255), width=2)
+        
+    # draw horizontal lines
+    for i in range(0,j_max):
+        y_line = i*100
+        draw.line([(0,y_line), (img_size[0],y_line)], fill=(255,0,0), width=2)
+
+        for j in range(1,10):
+            y_line = i*100 + j*10
+            draw.line([(0,y_line), (img_size[0], y_line)], fill=(0,255,0), width=2)
+    
+        j=5
+        y_line = i*100 + j*10
+        draw.line([(0,y_line), (img_size[0], y_line)], fill=(255,255,255), width=2)
+
+
+
 def generate_tradecard_image(
     background_img_path,
     atom_img_path,
@@ -26,10 +75,10 @@ def generate_tradecard_image(
     atom_subgroup_title,
     picto_img_path,
     atom_kpis,
-    atom_description):
-
-    show_grid = False
-    show_result = True
+    atom_description,
+    output_path = None,
+    show_grid = False,
+    show_result = False):
 
     background_path = background_img_path
 
@@ -99,7 +148,6 @@ def generate_tradecard_image(
 
 
     # Draw picto
-
     picto_img = Image.open(picto_path).convert("RGBA")
 
     # Draw picto circle
@@ -113,32 +161,7 @@ def generate_tradecard_image(
 
 
     if show_grid:
-        for i in range(0,10):
-            x_line = i*100
-            draw.line([(x_line,0), (x_line,1000)], fill=(255,0,0), width=2)
-
-            for j in range(1,10):
-                x_line = i*100 + j*10
-                draw.line([(x_line,0), (x_line,1000)], fill=(0,255,0), width=2)
-
-            j=5
-            x_line = i*100 + j*10
-            draw.line([(x_line,0), (x_line,1000)], fill=(255,255,255), width=2)
-            
-
-        for i in range(0,10):
-            y_line = i*100
-            draw.line([(0,y_line), (1000,y_line)], fill=(255,0,0), width=2)
-
-            for j in range(1,10):
-                y_line = i*100 + j*10
-                draw.line([(0,y_line), (1000, y_line)], fill=(0,255,0), width=2)
-        
-            j=5
-            y_line = i*100 + j*10
-            draw.line([(0,y_line), (1000, y_line)], fill=(255,255,255), width=2)
-
-
+        draw_grid(draw, img.size)
 
     # Draw atomic numbers
     atomic_font = ImageFont.truetype(atomic_font_path, atomic_font_size)
@@ -152,31 +175,23 @@ def generate_tradecard_image(
     # Draw atomic description
     description_font = ImageFont.truetype(description_font_path, description_font_size)
 
-    # Your box configuration
-    box_top_left = description_position
-    box_width, box_height = description_box_size
-
     # Wrap the text into lines
-    lines = wrap_text_to_box(draw, description, description_font, box_width)
+    write_text_in_box(draw,
+                      description,
+                      description_box_size,
+                      description_position,
+                      description_font,
+                      description_color)
 
-    # Draw lines within the box (check height if needed)
-    bbox = draw.textbbox((0, 0), "Ag", font=description_font)
-    line_height = (bbox[3] - bbox[1]) + 5  # height + line spacing
-    y_offset = box_top_left[1]
-
-    for line in lines:
-        if y_offset + line_height > box_top_left[1] + box_height:
-            break  # Stop if we exceed the box height
-        draw.text((box_top_left[0], y_offset), line, font=description_font, fill=description_color)
-        y_offset += line_height
 
     # Show the image if requested
     if show_result:
         img.show()
 
     # Save the final image
-    # background.save(output_path)
-    # print(f"Image saved to {output_path}")
+    if output_path:
+        img.save(output_path)
+        print(f"Image saved to {output_path}")
 
 if __name__ == "__main__":
     background_img_path = "/Users/julien/Documents/Projects/tradecards_atom/assets/background.png"
@@ -187,6 +202,9 @@ if __name__ == "__main__":
     atom_kpis = ["1", "1.01 g/mol", "-259°C", "-252°C", "1766"]
     atom_description = "L'hydrogène est le principal constituant du Soleil et de la plupart des étoiles (dont l'énergie provient de la fusion thermonucléaire de cet hydrogène), et de la matière interstellaire ou intergalactique. Sur Terre, il est surtout présent à l'état d'eau liquide, solide (glace) ou gazeuse (vapeur d'eau), mais on le trouve aussi dans les émanations de certains volcans sous la forme de H2 et de CH4 (méthane)."
 
+    show_grid = False
+    show_result = False
+
     generate_tradecard_image(
         background_img_path,
         atom_img_path,
@@ -194,4 +212,7 @@ if __name__ == "__main__":
         atom_subgroup_title,
         picto_img_path,
         atom_kpis,
-        atom_description)
+        atom_description,
+        output_path="/Users/julien/Documents/Projects/tradecards_atom/outputs/hydrogene.png",
+        show_grid = show_grid,
+        show_result = show_result)
