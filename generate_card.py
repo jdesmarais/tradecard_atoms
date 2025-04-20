@@ -49,7 +49,7 @@ def generate_tradecard_image(
     atomic_discovery_position = (465, 880)
 
     description_font_path = "/Library/Fonts/AdobeArabic-Regular.otf"
-    description_font_size = 8*4
+    description_font_size = 10*4
     description_color = (255,255,255)
     description = atom_description
     description_position = (65,970)
@@ -64,7 +64,7 @@ def generate_tradecard_image(
     # Draw atom image
     atom_img = Image.open(atom_path).convert("RGBA")
     margin = int((background_img.size[0]-atom_img.size[0])/2)
-    img.paste(atom_img, (margin+1, margin+1), atom_img)
+    img.paste(atom_img, (margin, 31), atom_img)
 
     # Draw background
     img.paste(background_img, (0,0), background_img)
