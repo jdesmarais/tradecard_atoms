@@ -63,7 +63,8 @@ def generate_tradecard_image(
 
     # Draw atom image
     atom_img = Image.open(atom_path).convert("RGBA")
-    img.paste(atom_img, (31,31), atom_img)
+    margin = int((background_img.size[0]-atom_img.size[0])/2)
+    img.paste(atom_img, (margin+1, margin+1), atom_img)
 
     # Draw background
     img.paste(background_img, (0,0), background_img)
@@ -115,7 +116,7 @@ def generate_tradecard_image(
 
 if __name__ == "__main__":
     background_img_filepath = "/Users/julien/Documents/Projects/tradecards_atom/assets/background.png"
-    atom_img_filepath = "/Users/julien/Documents/Projects/tradecards_atom/assets/img/hydrogene.png"
+    atom_img_filepath = "/Users/julien/Documents/Projects/tradecards_atom/assets/img/iode.png"
     atom_title = "Hydrogène (H)"
     atom_subgroup_title = "Non-métal"
     picto_img_filepath = "/Users/julien/Documents/Projects/tradecards_atom/assets/picto.png"
@@ -123,7 +124,7 @@ if __name__ == "__main__":
     atom_kpis = ["1", "1.01 u", "-259°C", "-252°C", "1766"]
     atom_description = "L'hydrogène est le principal constituant du Soleil et de la plupart des étoiles (dont l'énergie provient de la fusion thermonucléaire de cet hydrogène), et de la matière interstellaire ou intergalactique. Sur Terre, il est surtout présent à l'état d'eau liquide, solide (glace) ou gazeuse (vapeur d'eau), mais on le trouve aussi dans les émanations de certains volcans sous la forme de H2 et de CH4 (méthane)."
 
-    output_path="/Users/julien/Documents/Projects/tradecards_atom/outputs/hydrogene.png"
+    output_path="" #"/Users/julien/Documents/Projects/tradecards_atom/outputs/test.png"
 
     show_grid = False
     show_result = True
