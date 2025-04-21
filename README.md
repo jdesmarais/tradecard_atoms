@@ -1,14 +1,53 @@
-Generate tradecard
+Atom tradecards
 ===================
 
-This project aims at generating trade cards based on a dedicated CSV file.
+![Image](doc/hydrogen_card_example.png)
 
-The CSV file contains the metadata for the card (period_table_fr_metadata.csv).
+This project create trade cards based on atom metadata from the periodic table.
 
-The card background is the same for all the cards (assets/background.png).
+Quickstart
+----------
 
-The card rendering process is performed in the following way :
-1. load the atom image and draw it
-2. load the card background and draw it on top
-3. write the atom metadata on the image
-4. draw the atom group on top of the image
+1. Create and activate virtual environment
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+2. Install all required packages
+```bash
+pip install -r requirements.txt
+```
+
+3. Generate one card image per atom based on the atom metadata inside the CSV
+```bash
+python3 generate_cards_from.csv
+```
+(the images are saved inside `./outputs`)
+
+4. Generate PDF paper sheet so that it is easy to print all the cards
+```bash
+python3 generate_printing_cards.csv
+```
+(the PDF is generated inside `./outputs/sheets/all.pdf`)
+
+Project structure
+-----------------
+
+```bash
+.
+├── README.md
+├── assets                       # all data
+│   ├── background.png              # card background
+│   ├── front.png                   # card front
+│   ├── img                         # atom images
+│   ├── periodic_table_atoms.csv    # atom CSV metadata
+│   ├── picto.png                   # card picto
+│   └── tradecard_atom.afdesign     # affinity designer file for card design
+├── doc                          # documentation assets
+├── generate_card.py
+├── generate_cards_from_csv.py
+├── generate_printing_cards.py
+├── requirements.txt
+└── utils.py
+```
