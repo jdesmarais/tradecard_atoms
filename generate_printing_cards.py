@@ -1,6 +1,7 @@
 from alive_progress import alive_bar
 import glob
 from math import ceil, floor
+import os
 from pathlib import Path
 from PIL import Image
 
@@ -28,13 +29,21 @@ if __name__ == "__main__":
 
     # inputs
     printing_format = "A4"
-    card_dirpath = "/Users/julien/Documents/Projects/tradecards_atom/outputs"
-    output_dir = "/Users/julien/Documents/Projects/tradecards_atom/outputs/sheets"
-    front_card_filepath = "/Users/julien/Documents/Projects/tradecards_atom/assets/front.png"
+    card_dirpath = "outputs"
+    output_dirpath = "outputs/sheets"
+    front_card_filepath = "assets/front.png"
     generate_front_card = True
     show = False
     save = True
     save_as_one_file = True
+
+    if save:
+        if os.path.exists(output_dirpath):
+            if not os.path.isdir(output_dirpath):
+                raise Exception(f"The output path {output_dirpath} exists but is not a directory, please fix it")
+        else :
+            os.mkdir(output_dirpath)
+
 
     img_card_filepath = glob.glob(card_dirpath+'/*.png')
     print(f"Expecting a total of {len(img_card_filepath)} cards to be printed")
@@ -125,7 +134,7 @@ if __name__ == "__main__":
     if save:
         if save_as_one_file:
 
-            sheet_output_path = Path(output_dir) / f"all.pdf"        
+            sheet_output_path = Path(output_dirpath) / f"all.pdf"        
             print(f"Saving images as one PDF {sheet_output_path}")
             sheet_imgs[0].save(
                 sheet_output_path, "PDF" ,resolution=100.0, save_all=True, append_images=sheet_imgs[1:]
@@ -138,6 +147,6 @@ if __name__ == "__main__":
 
             with alive_bar(len(sheet_imgs)) as bar:
                 for i in range(0, len(sheet_imgs)):        
-                    sheet_output_path = Path(output_dir) / f"sheet_{i}.pdf"
+                    sheet_output_path = Path(output_dirpath) / f"sheet_{i}.pdf"
                     sheet_imgs[-1].save(sheet_output_path, 'PDF', quality=100)
                     bar()

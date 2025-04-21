@@ -23,6 +23,14 @@ def generate_tradecard_image_from_csv(
     show_result=False,
     save=True):
 
+    # output dir
+    if save:
+        if os.path.exists(output_dirpath):
+            if not os.path.isdir(output_dirpath):
+                raise Exception(f"The output path {output_dirpath} exists but is not a directory, please fix it")
+        else :
+            os.mkdir(output_dirpath)
+
     # read CSV
     with open(csv_filepath, 'r') as csv_file:
         reader = DictReader(csv_file)
@@ -89,7 +97,7 @@ def generate_tradecard_image_from_csv(
 
                 picto_color = picto_color_map[subgroup]
 
-                output_path = output_dirpath / Path(f"{name}.png")
+                output_path = output_dirpath / Path(f"{unidecode(name)}.png")
 
                 if not os.path.isfile(atom_img_filepath):
                     print(f"-- Cannot find image for {name} : {atom_img_filepath} - Skipped")
@@ -117,11 +125,11 @@ def generate_tradecard_image_from_csv(
                 bar()
 
 if __name__ == "__main__":
-    csv_filepath = "/Users/julien/Documents/Projects/tradecards_atom/assets/periodic_table_atoms.csv"
-    background_img_filepath = "/Users/julien/Documents/Projects/tradecards_atom/assets/background.png"
-    atom_img_dirpath = "/Users/julien/Documents/Projects/tradecards_atom/assets/img"
-    picto_img_filepath = "/Users/julien/Documents/Projects/tradecards_atom/assets/picto.png"
-    output_dirpath="/Users/julien/Documents/Projects/tradecards_atom/outputs"
+    csv_filepath = "assets/periodic_table_atoms.csv"
+    background_img_filepath = "assets/background.png"
+    atom_img_dirpath = "assets/img"
+    picto_img_filepath = "assets/picto.png"
+    output_dirpath="outputs"
 
     show_result = False
     save = True
